@@ -1,0 +1,35 @@
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, avg, count, desc
+
+# Step 1: Create Spark Session
+spark = SparkSession.builder \
+    .appName("Big Data Analysis - CODTECH Task 1") \
+    .getOrCreate()
+
+# Step 2: Load your large dataset (replace with your actual file path)
+# Supports CSV, JSON, Parquet, etc.
+df = spark.read.csv("your_dataset.csv", header=True, inferSchema=True)
+
+# Step 3: Basic Exploration
+df.printSchema()
+df.show(5)
+
+# Step 4: Clean Data (drop nulls, filter, etc.)
+df_clean = df.dropna()
+
+# Step 5: Perform Analysis (example: group by, average, top values)
+# Example: Group by a categorical column and get average of numerical column
+if 'category' in df_clean.columns and 'value' in df_clean.columns:
+    result = df_clean.groupBy("category").agg(
+        avg("value").alias("average_value"),
+        count("*").alias("count")
+    ).orderBy(desc("average_value"))
+    result.show()
+else:
+    print("Replace 'category' and 'value' with actual column names in your dataset.")
+
+# Step 6: Save Results (optional)
+result.write.csv("output_summary.csv", header=True)
+
+# Step 7: Stop Spark session
+spark.stop()
